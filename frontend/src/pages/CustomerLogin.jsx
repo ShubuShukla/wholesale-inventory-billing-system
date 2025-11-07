@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 export default function CustomerLogin() {
   const navigate = useNavigate();
@@ -30,11 +33,9 @@ export default function CustomerLogin() {
       return;
     }
     if (otp === sentOtp) {
-      // For demo, store token & role as CUSTOMER
       localStorage.setItem("token", "mock-customer-token");
       localStorage.setItem("role", "CUSTOMER");
       localStorage.setItem("name", "Retailer");
-      // In a real app, we'd load retailer profile here
       navigate("/customer");
     } else {
       setError("Incorrect OTP");
@@ -42,77 +43,71 @@ export default function CustomerLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-center mb-1">Retailer Login</h2>
-        <p className="text-sm text-gray-500 text-center mb-4">Enter phone to receive OTP</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <Card className="w-full max-w-sm shadow-md border border-gray-200">
+        <CardHeader className="text-center space-y-1">
+          <h2 className="text-xl font-semibold">Retailer Login</h2>
+          <p className="text-sm text-gray-500">Enter mobile number to continue</p>
+        </CardHeader>
 
-        {step === "phone" && (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-gray-700">Phone</label>
-              <input
+        <CardContent>
+          {step === "phone" && (
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                 placeholder="10-digit mobile number"
                 maxLength={10}
-                className="mt-1 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
 
-            {error && <div className="text-sm text-red-600">{error}</div>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
 
-            <button className="w-full bg-white border border-gray-200 py-2 rounded-lg font-semibold">
-              Send OTP
-            </button>
-          </form>
-        )}
+              <Button type="submit" className="w-full">
+                Send OTP
+              </Button>
+            </form>
+          )}
 
-        {step === "otp" && (
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-gray-700">Enter OTP</label>
-              <input
+          {step === "otp" && (
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <Input
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                placeholder="4-digit code"
+                placeholder="4-digit OTP"
                 maxLength={6}
-                className="mt-1 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("phone");
-                }}
-                className="text-gray-500 underline"
-              >
-                Edit number
-              </button>
+              <div className="flex justify-between text-sm">
+                <button
+                  type="button"
+                  className="text-gray-500 underline"
+                  onClick={() => setStep("phone")}
+                >
+                  Edit number
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const code = Math.floor(1000 + Math.random() * 9000).toString();
-                  setSentOtp(code);
-                  alert(`(Demo) OTP resent: ${code}`);
-                }}
-                className="text-blue-600 underline"
-              >
-                Resend
-              </button>
-            </div>
+                <button
+                  type="button"
+                  className="text-gray-700 underline"
+                  onClick={() => {
+                    const code = Math.floor(1000 + Math.random() * 9000).toString();
+                    setSentOtp(code);
+                    alert(`(Demo) OTP resent: ${code}`);
+                  }}
+                >
+                  Resend OTP
+                </button>
+              </div>
 
-            {error && <div className="text-sm text-red-600">{error}</div>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
 
-            <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">
-              Verify & Continue
-            </button>
-          </form>
-        )}
-      </div>
+              <Button type="submit" className="w-full">
+                Verify & Continue
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

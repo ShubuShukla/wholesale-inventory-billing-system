@@ -6,7 +6,7 @@ export default function Home() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-6">
         <div className="text-center mb-6">
           <div className="mx-auto w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-700">
-            WH
+            WHOLESALE BILLING SYSTEM
           </div>
           <h1 className="text-xl font-semibold mt-4">Wholesale Billing</h1>
           <p className="text-sm text-gray-500 mt-1">

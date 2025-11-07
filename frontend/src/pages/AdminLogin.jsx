@@ -1,141 +1,151 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff, Lock, Phone, KeyRound } from "lucide-react";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("credentials"); // credentials -> otp -> done
+  const [step, setStep] = useState("credentials"); // credentials -> otp
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [otp, setOtp] = useState("");
-  const [sentOtp, setSentOtp] = useState(null);
   const [error, setError] = useState("");
 
-  // Fake validation: for demo we accept any pass but require phone length
+  // fixed credentials
+  const DEV_PHONE = "9999999999";
+  const DEV_PASS = "admin123";
+  const FIXED_OTP = "1234";
+
   function handleSendOtp(e) {
-    e?.preventDefault();
+    e.preventDefault();
     setError("");
-    if (!phone || phone.length < 10) {
-      setError("Enter a valid phone number");
-      return;
-    }
-    if (!password || password.length < 4) {
-      setError("Enter admin password (min 4 chars)");
-      return;
-    }
-    // Fake OTP generator
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setSentOtp(code);
+
+    if (phone !== DEV_PHONE) return setError("Phone not registered");
+    if (password !== DEV_PASS) return setError("Incorrect password");
+
     setStep("otp");
-    // In real app: send OTP via SMS gateway here
-    alert(`(Demo) OTP sent: ${code}`);
   }
 
   function handleVerifyOtp(e) {
-    e?.preventDefault();
+    e.preventDefault();
     setError("");
-    if (!otp) {
-      setError("Enter OTP");
-      return;
-    }
-    if (otp === sentOtp) {
-      // Mark "admin logged in"
-      localStorage.setItem("token", "mock-admin-token");
-      localStorage.setItem("role", "ADMIN");
-      localStorage.setItem("name", "Admin");
-      navigate("/admin");
-    } else {
-      setError("Incorrect OTP, try again");
-    }
+
+    if (otp !== FIXED_OTP) return setError("Incorrect OTP");
+
+    localStorage.setItem("token", "mock-admin-token");
+    localStorage.setItem("role", "ADMIN");
+    localStorage.setItem("name", "Admin");
+
+    navigate("/admin");
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-center mb-1">Admin Login</h2>
-        <p className="text-sm text-gray-500 text-center mb-4">Phone + password + OTP</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+      <Card className="w-full max-w-md shadow-xl border-blue-200">
+        <CardHeader>
+          <CardTitle className="text-center text-blue-700 text-xl font-bold">
+            🔒 Admin Login
+          </CardTitle>
+          <p className="text-center text-gray-500 text-sm">
+            Phone + Password + OTP
+          </p>
+        </CardHeader>
 
-        {step === "credentials" && (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-gray-700">Phone</label>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                placeholder="10-digit mobile number"
-                maxLength={10}
-                className="mt-1 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+        <CardContent>
+          {step === "credentials" && (
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Phone</label>
+                <div className="relative">
+                  <Phone className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    value={phone}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/\D/g, ""))
+                    }
+                    maxLength={10}
+                    placeholder="9999999999"
+                    className="pl-8"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="text-xs font-medium text-gray-700">Password</label>
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                placeholder="Your admin password"
-                className="mt-1 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    type={showPass ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="admin123"
+                    className="pl-8 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-2 top-2.5 text-gray-400"
+                  >
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
 
-            {error && <div className="text-sm text-red-600">{error}</div>}
+              {error && <p className="text-red-600 text-sm">{error}</p>}
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold"
-            >
-              Send OTP
-            </button>
-          </form>
-        )}
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                Send OTP
+              </Button>
+            </form>
+          )}
 
-        {step === "otp" && (
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-gray-700">Enter OTP</label>
-              <input
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                placeholder="4-digit code"
-                maxLength={6}
-                className="mt-1 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+          {step === "otp" && (
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Enter OTP</label>
+                <div className="relative">
+                  <KeyRound className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                    maxLength={4}
+                    placeholder="1234"
+                    className="pl-8"
+                  />
+                </div>
+              </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("credentials");
-                  setOtp("");
-                }}
-                className="text-gray-500 underline"
-              >
-                Edit phone or password
-              </button>
+              <div className="flex justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={() => setStep("credentials")}
+                  className="text-gray-500 underline"
+                >
+                  Edit number / password
+                </button>
+                <span className="text-blue-600 font-medium">Resend OTP</span>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  // resend fake otp
-                  const code = Math.floor(1000 + Math.random() * 9000).toString();
-                  setSentOtp(code);
-                  alert(`(Demo) OTP resent: ${code}`);
-                }}
-                className="text-blue-600 underline"
-              >
-                Resend
-              </button>
-            </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
 
-            {error && <div className="text-sm text-red-600">{error}</div>}
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                Verify & Login
+              </Button>
+            </form>
+          )}
 
-            <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">
-              Verify & Login
-            </button>
-          </form>
-        )}
-      </div>
+          {/* Developer mode panel */}
+          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-gray-700">
+            <strong className="text-blue-700">🔧 Developer Mode</strong>
+            <div>📞 {DEV_PHONE}</div>
+            <div>🔑 {DEV_PASS}</div>
+            <div>🔢 OTP: {FIXED_OTP}</div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
